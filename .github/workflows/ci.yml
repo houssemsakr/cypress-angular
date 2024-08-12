@@ -1,27 +1,20 @@
-name: CI
+name: CI Pipeline
 
 on:
   push:
     branches:
       - master
-      - angular-cypress
   pull_request:
     branches:
       - master
-      - angular-cypress
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
+    - name: Checkout Code
       uses: actions/checkout@v3
-
-    - name: Set up Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '20'  # Updated Node.js version
 
     - name: Install Docker
       run: |
@@ -36,14 +29,11 @@ jobs:
         sudo curl -L "https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
         sudo chmod +x /usr/local/bin/docker-compose
 
-    - name: Build and start services
+    - name: Build and Run Docker Containers
       run: |
         docker-compose up -d --build
+        sleep 30 # Wait for services to start
 
-    - name: Run Cypress tests
+    - name: Run Cypress Tests
       run: |
-        docker-compose run cypress npx cypress run --config-file=cypress.config.js
-
-    - name: Stop and remove services
-      run: |
-        docker-compose down
+        docker-compose run cypress
