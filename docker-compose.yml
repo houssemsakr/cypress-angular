@@ -6,8 +6,6 @@ services:
       dockerfile: Dockerfile
     ports:
       - '4200:80'
-    networks:
-      - app-network
 
   cypress:
     build:
@@ -15,10 +13,3 @@ services:
       dockerfile: Dockerfile-cypress
     depends_on:
       - angular
-    networks:
-      - app-network
-    entrypoint: ["npx", "cypress", "run", "--config-file", "cypress.config.js"]
-
-networks:
-  app-network:
-    driver: bridge
