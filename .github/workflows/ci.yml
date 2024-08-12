@@ -1,35 +1,14 @@
 name: End-to-end tests
-
 on: [push]
-
 jobs:
   cypress-run:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '20' # Assurez-vous que cette version correspond à celle utilisée dans votre projet
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Build the application
-        run: npm run build --if-present # Utilisez 'npm run build' si 'build' est spécifié dans 'scripts' dans package.json
-
-      - name: Start the application
-        run: npm start & # Lancer l'application en arrière-plan
-
-      - name: Wait for application to be ready
-        run: npx wait-on http://localhost:4200
-
-      - name: Run Cypress tests
+      - name: Cypress run
         uses: cypress-io/github-action@v3
         with:
-          start: npm start
+          build: npm run cy:run
           wait-on: http://localhost:4200
-          wait-on-timeout: 60 # Temps d'attente pour que l'application soit prête, ajustez si nécessaire
