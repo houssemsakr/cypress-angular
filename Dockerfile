@@ -18,8 +18,10 @@ RUN npm install -g @angular/cli@17
 
 # Copy application code and dependencies
 COPY package.json /usr/src/app/package.json
+COPY package-lock.json /usr/src/app/package-lock.json  # Ensure package-lock.json is also copied
 RUN npm install --legacy-peer-deps
-# add app
+
+# Add application code
 COPY . /usr/src/app
 
 # Build the application
