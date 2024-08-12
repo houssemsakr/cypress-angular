@@ -21,17 +21,19 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v3
       with:
-        node-version: '20' # Utilisation de Node.js 20
+        node-version: '20'  # Updated Node.js version
 
-    - name: Update and clean up packages
+    - name: Install Docker
       run: |
         sudo apt-get update
         sudo apt-get remove -y containerd containerd.io
-        sudo apt-get install -y docker.io docker-compose
+        sudo apt-get autoremove -y
+        sudo apt-get install -y docker.io
 
     - name: Install Docker Compose
       run: |
-        sudo curl -L https://github.com/docker/compose/releases/download/${{ secrets.DOCKER_COMPOSE_VERSION }}/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose
+        DOCKER_COMPOSE_VERSION=1.29.2
+        sudo curl -L "https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
         sudo chmod +x /usr/local/bin/docker-compose
 
     - name: Build and start services
@@ -40,7 +42,7 @@ jobs:
 
     - name: Run Cypress tests
       run: |
-        docker-compose run cypress ./node_modules/.bin/cypress run --config baseUrl=http://127.0.0.1
+        docker-compose run cypress npx cypress run --config-file=cypress.config.js
 
     - name: Stop and remove services
       run: |
