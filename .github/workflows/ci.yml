@@ -1,14 +1,31 @@
-name: End-to-end tests
-on: [push]
-jobs:
-  cypress-run:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+name: Cypress Tests
 
-      - name: Cypress run
+on: [push, pull_request]
+
+jobs:
+  prepare:
+    runs-on: ubuntu-22.04
+    outputs:
+      uuid: ${{ steps.uuid.outputs.value }}
+    steps:
+      - name: Generate unique ID 💎
+        id: uuid
+        run: echo "value=sha-$GITHUB_SHA-time-$(date +"%s")" >> $GITHUB_OUTPUT
+
+  cypress-run:
+    needs: prepare
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: npm ci
+      - name: Start server in the background
+        run: npm start &
+      - name: Run Cypress tests
         uses: cypress-io/github-action@v6
         with:
-          build: npm run cy:run
-          wait-on: http://localhost:4200
+          record: true
+          parallel: true
+          ci-build-id: ${{ needs.prepare.outputs.uuid }}
+        env:
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
