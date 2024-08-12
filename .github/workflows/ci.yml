@@ -21,7 +21,7 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '18' # Alignez la version avec celle utilisée dans votre Dockerfile
+        node-version: '18' # Ajustez si vous utilisez une autre version de Node.js dans Dockerfile
 
     - name: Install Docker and Docker Compose
       run: |
