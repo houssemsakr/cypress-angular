@@ -1,52 +1,39 @@
-name: CI/CD Pipeline
+name: End-to-end tests
 
-on:
-  push:
-    branches:
-      - master
-  pull_request:
-    branches:
-      - master
+on: [push]
 
 jobs:
-  build:
+  cypress-run:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Set up Docker
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18' # Assurez-vous que cette version correspond à celle utilisée dans votre projet
+
+      - name: Install dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y apt-transport-https ca-certificates curl gnupg lsb-release
-          
-          # Add Docker's official GPG key
-          curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo tee /etc/apt/trusted.gpg.d/docker.asc
-          
-          # Set up the Docker repository
-          echo "deb [arch=$(dpkg --print-architecture) ] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+          npm install
 
-          # Install Docker
-          sudo apt-get update
-          sudo apt-get install -y docker-ce docker-ce-cli containerd.io
-
-          # Check Docker version
-          sudo docker --version
-
-      - name: Build Docker Image
+      - name: Build the application
         run: |
-          sudo docker build -t my-angular-app:latest .
+          npm run build # Remplacez par la commande appropriée pour construire votre application
 
-      - name: Run Docker Container
+      - name: Start the application
         run: |
-          sudo docker run -d -p 8080:80 my-angular-app:latest
+          npm start & # Lancer l'application en arrière-plan
 
-      - name: Verify Docker Container
+      - name: Wait for application to be ready
         run: |
-          curl -f http://localhost:8080 || exit 1
+          npx wait-on http://localhost:4200
 
-      - name: Run Cypress Tests
-        run: |
-          # Assurez-vous que Cypress est installé et configuré correctement
-          npx cypress run
+      - name: Run Cypress tests
+        uses: cypress-io/github-action@v4
+        with:
+          start: npm start # Lancer l'application (peut être différent si vous avez une commande spécifique pour les tests)
+          wait-on: http://localhost:4200
+          wait-on-timeout: 60 # Temps d'attente pour que l'application soit prête, ajustez si nécessaire
