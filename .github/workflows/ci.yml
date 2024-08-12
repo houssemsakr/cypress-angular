@@ -13,7 +13,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18' # Assurez-vous que cette version correspond à celle utilisée dans votre projet
+          node-version: '20' # Assurez-vous que cette version correspond à celle utilisée dans votre projet
 
       - name: Install dependencies
         run: npm install
@@ -28,9 +28,8 @@ jobs:
         run: npx wait-on http://localhost:4200
 
       - name: Run Cypress tests
-        uses: cypress-io/github-action@v4
+        uses: cypress-io/github-action@v5
         with:
           start: npm start
           wait-on: http://localhost:4200
           wait-on-timeout: 60 # Temps d'attente pour que l'application soit prête, ajustez si nécessaire
-
