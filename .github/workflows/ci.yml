@@ -1,4 +1,4 @@
-name: CI Pipeline
+name: CI/CD Pipeline
 
 on:
   push:
@@ -13,28 +13,40 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Code
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Install Docker
-      run: |
-        sudo apt-get update
-        sudo apt-get remove -y containerd containerd.io
-        sudo apt-get autoremove -y
-        sudo apt-get clean
-        sudo apt-get install -y docker.io
+      - name: Set up Docker
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y apt-transport-https ca-certificates curl gnupg lsb-release
+          
+          # Add Docker's official GPG key
+          curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo tee /etc/apt/trusted.gpg.d/docker.asc
+          
+          # Set up the Docker repository
+          echo "deb [arch=$(dpkg --print-architecture) ] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 
-    - name: Install Docker Compose
-      run: |
-        DOCKER_COMPOSE_VERSION=1.29.2
-        sudo curl -L "https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-        sudo chmod +x /usr/local/bin/docker-compose
+          # Install Docker
+          sudo apt-get update
+          sudo apt-get install -y docker-ce docker-ce-cli containerd.io
 
-    - name: Build and Run Docker Containers
-      run: |
-        docker-compose up -d --build
-        sleep 30 # Wait for services to start
+          # Check Docker version
+          sudo docker --version
 
-    - name: Run Cypress Tests
-      run: |
-        docker-compose run cypress
+      - name: Build Docker Image
+        run: |
+          sudo docker build -t my-angular-app:latest .
+
+      - name: Run Docker Container
+        run: |
+          sudo docker run -d -p 8080:80 my-angular-app:latest
+
+      - name: Verify Docker Container
+        run: |
+          curl -f http://localhost:8080 || exit 1
+
+      - name: Run Cypress Tests
+        run: |
+          # Assurez-vous que Cypress est installé et configuré correctement
+          npx cypress run
