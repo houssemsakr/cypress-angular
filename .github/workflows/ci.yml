@@ -16,18 +16,21 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v3
 
     - name: Set up Node.js
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v3
       with:
-        node-version: '18' # Ajustez si vous utilisez une autre version de Node.js dans Dockerfile
+        node-version: '20' 
 
-    - name: Install Docker and Docker Compose
+    - name: Install Docker
       run: |
         sudo apt-get update
-        sudo apt-get install -y docker.io
-        sudo curl -L "https://github.com/docker/compose/releases/download/2.17.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+        sudo apt-get install -y docker.io docker-compose
+
+    - name: Install Docker Compose
+      run: |
+        sudo curl -L https://github.com/docker/compose/releases/download/${{ secrets.DOCKER_COMPOSE_VERSION }}/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose
         sudo chmod +x /usr/local/bin/docker-compose
 
     - name: Build and start services
