@@ -1,46 +1,40 @@
-name: CI
+name: CI Pipeline
 
 on:
   push:
     branches:
       - master
-      - angular-cypress
   pull_request:
     branches:
       - master
-      - angular-cypress
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
+    - name: Checkout Code
       uses: actions/checkout@v3
-
-    - name: Set up Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '10'
 
     - name: Install Docker
       run: |
         sudo apt-get update
-        sudo apt-get install -y docker.io docker-compose
+        sudo apt-get remove -y containerd containerd.io
+        sudo apt-get autoremove -y
+        sudo apt-get clean
+        sudo apt-get install -y docker.io
 
     - name: Install Docker Compose
       run: |
-        sudo curl -L https://github.com/docker/compose/releases/download/${{ secrets.DOCKER_COMPOSE_VERSION }}/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose
+        DOCKER_COMPOSE_VERSION=1.29.2
+        sudo curl -L "https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
         sudo chmod +x /usr/local/bin/docker-compose
 
-    - name: Build and start services
+    - name: Build and Run Docker Containers
       run: |
         docker-compose up -d --build
+        sleep 30 # Wait for services to start
 
-    - name: Run Cypress tests
+    - name: Run Cypress Tests
       run: |
-        docker-compose run cypress ./node_modules/.bin/cypress run --config baseUrl=http://127.0.0.1
-
-    - name: Stop and remove services
-      run: |
-        docker-compose down
+        docker-compose run cypress
