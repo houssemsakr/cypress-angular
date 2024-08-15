@@ -3,10 +3,9 @@ const { defineConfig } = require('cypress');
 module.exports = defineConfig({
   e2e: {
     setupNodeEvents(on, config) {
-      // Implement Node event listeners here if needed
+      // config de test
     },
-    baseUrl: 'http://angular:80', 
-    supportFile: false, 
-    defaultCommandTimeout: 100000, 
+    baseUrl: 'http://localhost:4200', 
+    specPattern: 'cypress/e2e/**/*.cy.{js,jsx,ts,tsx}',
   },
 });
