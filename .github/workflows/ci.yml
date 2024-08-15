@@ -25,7 +25,9 @@ jobs:
       run: npm ci
 
     - name: Start Angular application
-      run: npm start &
+      run: |
+        npm start &
+        npx wait-on http://localhost:4200
       env:
         CI: true
 
