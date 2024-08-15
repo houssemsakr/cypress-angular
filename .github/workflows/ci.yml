@@ -1,4 +1,4 @@
-name: CI Pipeline
+nname: CI Pipeline
 
 on:
   push:
@@ -16,25 +16,15 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v3
 
-    - name: Install Docker
-      run: |
-        sudo apt-get update
-        sudo apt-get remove -y containerd containerd.io
-        sudo apt-get autoremove -y
-        sudo apt-get clean
-        sudo apt-get install -y docker.io
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20'
 
-    - name: Install Docker Compose
-      run: |
-        DOCKER_COMPOSE_VERSION=1.29.2
-        sudo curl -L "https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-        sudo chmod +x /usr/local/bin/docker-compose
+    - name: Install dependencies
+      run: npm ci
 
-    - name: Build and Run Docker Containers
-      run: |
-        docker-compose up -d --build
-        sleep 30 # Wait for services to start
-
-    - name: Run Cypress Tests
-      run: |
-        docker-compose run cypress
+    - name: Run Cypress tests
+      uses: cypress-io/github-action@v2
+      with:
+        start: npm start
