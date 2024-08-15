@@ -13,6 +13,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+<<<<<<< HEAD
     - name: Checkout Code
       uses: actions/checkout@v3
 
@@ -38,3 +39,20 @@ jobs:
     - name: Run Cypress Tests
       run: |
         docker-compose run cypress
+=======
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Cypress tests
+        uses: cypress-io/github-action@v2
+        with:
+          start: npm start
+>>>>>>> 540fa043e1635352068d446f8e9f308725f894be
